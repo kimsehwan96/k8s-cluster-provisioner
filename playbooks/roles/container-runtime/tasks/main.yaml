@@ -1,0 +1,38 @@
+- name: 패키지 매니저가 설치한 Containerd 제거
+  package:
+    name: "{{ packages }}"
+    state: absent
+  vars:
+    packages:
+      - containerd
+      - containerd.io
+
+- name: Containerd 파일 다운로드
+  get_url:
+    url: "https://github.com/containerd/containerd/releases/download/v{{ containerd_version }}/containerd-{{ containerd_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: "/tmp/containerd-{{ containerd_version }}-linux-{{ host_architecture }}.tar.gz"
+    mode: 0644
+
+- name: Containerd 압축 해제 및 /usr/local/bin 이동
+  unarchive:
+    src: "/tmp/containerd-{{ containerd_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: /usr/local/bin
+    remote_src: yes
+    extra_opts: [--strip-component=1]
+
+- name: Containerd 서비스 파일 복사
+  copy:
+    src: "files/containerd.service"
+    dest: "/etc/systemd/system/containerd.service"
+    mode: 0644
+
+- name: 시스템 데몬 reload
+  systemd:
+    daemon_reload: yes
+
+- name: Containerd 서비스 시작
+  service:
+    name: containerd
+    state: started
+    enabled: yes
+

@@ -1,0 +1,14 @@
+# 타겟 머신의 각종 정보를 출력하는 태스크
+
+- debug: msg="호스트 명 :{{ ansible_hostname }}"
+- debug: msg="호스트 IP :{{ ansible_host }}"
+- debug: msg="호스트 OS :{{ ansible_os_family }}"
+- debug: msg="호스트 CPU :{{ ansible_processor }}"
+- debug: msg="호스트 메모리 :{{ ansible_memtotal_mb }}MB"
+- debug: msg="호스트 디스크 :{{ ansible_devices }}"
+- debug: msg="호스트 네트워크 :{{ ansible_interfaces }}"
+
+
+
+
+

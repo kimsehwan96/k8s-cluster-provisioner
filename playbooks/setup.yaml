@@ -1,4 +1,17 @@
-- hosts: master:worker
+- name: 기본적인 정보 출력
+  hosts: master:worker
+  roles:
+    - { role: check }
+
+- name: 필수 패키지 설치, 스왑 off , 커널 파라미터 설정, 방화벽 설정 등 기본적인 설정
+  hosts: master:worker
   become: true
   roles:
     - { role: prepare }
+
+- name: 컨테이너 런타임 설치
+  hosts: master:worker
+  become: true
+  roles:
+    - { role: defaults }
+    - { role: container-runtime }

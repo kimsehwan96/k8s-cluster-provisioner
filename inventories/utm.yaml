@@ -12,11 +12,11 @@ all:
   children:
     master:
       hosts:
-        vm0:
+          vm0:
       vars:
         test_var: test
     worker:
       hosts:
-        vm1:
+          vm1:
       vars:
         test_var: test
