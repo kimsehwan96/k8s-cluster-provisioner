@@ -7,7 +7,7 @@
 - debug: msg="호스트 메모리 :{{ ansible_memtotal_mb }}MB"
 - debug: msg="호스트 디스크 :{{ ansible_devices }}"
 - debug: msg="호스트 네트워크 :{{ ansible_interfaces }}"
-
+- debug: msg="호스트 아키텍처 :{{ ansible_architecture }}"
 
 
 
