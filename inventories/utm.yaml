@@ -1,0 +1,22 @@
+all:
+  vars:
+    ansible_user: hayden
+    ansible_password: 1234
+    ansible_become_password: 1234
+    k8s_version: 1.28.4
+  hosts:
+    vm0:
+      ansible_host: 192.168.201.2
+    vm1:
+      ansible_host: 192.168.201.3
+  children:
+    master:
+      hosts:
+        vm0:
+      vars:
+        test_var: test
+    worker:
+      hosts:
+        vm1:
+      vars:
+        test_var: test

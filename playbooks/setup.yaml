@@ -1,0 +1,4 @@
+- hosts: master:worker
+  become: true
+  roles:
+    - { role: prepare }
