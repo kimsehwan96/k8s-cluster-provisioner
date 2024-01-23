@@ -10,6 +10,8 @@
       - net-tools
       - curl
       - ca-certificates
+      - socat
+      - conntrack
   become: true
 
 

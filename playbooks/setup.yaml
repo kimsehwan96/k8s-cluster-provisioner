@@ -15,3 +15,18 @@
   roles:
     - { role: defaults }
     - { role: container-runtime }
+
+- name: 쿠버네티스 바이너리 설치
+  hosts: master:worker
+  become: true
+  roles:
+    - { role: defaults }
+    - { role: kubernetes }
+
+- name: 컨트롤 플레인 구성
+  hosts: master
+  become: true
+  become_user: root
+  roles:
+    - { role: defaults }
+    - { role: control-plane }

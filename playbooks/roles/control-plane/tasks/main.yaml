@@ -1,0 +1,23 @@
+- name: kubeadm config 파일 복사
+  copy:
+    src: "../../../configs/utm/master.yaml"
+    dest: "/tmp/kubeadm-config.yaml"
+    mode: 0644
+
+- debug: var=ansible_env.PATH
+
+# kubelet 서비스 임시 중지
+- name: kubelet 서비스 임시 중지
+  service:
+    name: kubelet
+    state: stopped
+    enabled: yes
+
+# - name: kubeadm init 실행
+#   command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
+#   register: kubeadm_init_result
+#   environment: 
+#     PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+
+# - debug: var=kubeadm_init_result.stdout_lines
+# - debug: var=ansible_env.PATH

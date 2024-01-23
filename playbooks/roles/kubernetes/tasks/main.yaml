@@ -1,0 +1,46 @@
+- name: crictl 다운로드
+  get_url:
+    url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: "/tmp/crictl-{{ crictl_version }}-linux-{{ host_architecture }}.tar.gz"
+    mode: 0644
+
+- name: crictl 압축 해제 및 /usr/local/bin 이동
+  unarchive:
+    src: "/tmp/crictl-{{ crictl_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: /usr/local/bin
+    remote_src: yes
+
+- name: kubelet, kubeadm, kubectl 바이너리 다운로드
+  get_url:
+    url: "{{ item.url }}"
+    dest: "{{ item.dest }}"
+    mode: 0755
+  with_items:
+    - { url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ host_architecture }}/kubelet", dest: "/usr/local/bin/kubelet" }
+    - { url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ host_architecture }}/kubeadm", dest: "/usr/local/bin/kubeadm" }
+    - { url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ host_architecture }}/kubectl", dest: "/usr/local/bin/kubectl" }
+
+- name: kubelet 서비스 파일 복사 위치 생성
+  file:
+    path: "/usr/local/lib/systemd/system"
+    state: directory
+    mode: 0755
+    owner: root
+    group: root
+    recurse: yes
+
+- name: kubelet 서비스 파일 복사
+  copy:
+    src: "files/kubelet.service"
+    dest: "/usr/local/lib/systemd/system/kubelet.service"
+    mode: 0644
+
+- name: systemd 데몬 reload
+  systemd:
+    daemon_reload: yes
+
+- name: kubelet 서비스 시작
+  service:
+    name: kubelet
+    state: started
+    enabled: yes
