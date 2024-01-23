@@ -1,4 +1,4 @@
-enabled_plugins = ["cri"]
+disabled_plugins = []
 imports = []
 oom_score = 0
 plugin_dir = ""
