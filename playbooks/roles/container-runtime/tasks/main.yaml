@@ -69,7 +69,7 @@
     mode: 0755
 
 - name: runc 설치
-  command: install -m 0755 -o root -g root /tmp/runc.{{ host_architecture }} /usr/local/bin/runc
+  command: install -m 0755 -o root -g root /tmp/runc.{{ host_architecture }} /usr/local/sbin/runc
   become: true
 
 
@@ -94,16 +94,3 @@
     dest: /opt/cni/bin
     remote_src: yes
     extra_opts: [--strip-component=1]
-
-# /usr/local/bin 을 PATH 환경 변수에 추가
-# - name: PATH 환경 변수에 /usr/local/bin 추가
-#   lineinfile:
-#     path: /etc/profile
-#     line: 'export PATH=$PATH:/usr/local/bin'
-#     state: present
-#     create: yes
-
-- name: Add to PATH
-  copy:
-    content: "export PATH=$PATH:/usr/local/bin"
-    dest: "/etc/profile.d/add-path.sh"

@@ -12,6 +12,10 @@
       - ca-certificates
       - socat
       - conntrack
+      - conntrack-tools
+      - libnetfilter_cthelper
+      - libnetfilter_cttimeout
+      - libnetfilter_queue
   become: true
 
 
