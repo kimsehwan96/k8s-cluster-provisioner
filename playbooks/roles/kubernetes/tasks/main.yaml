@@ -20,9 +20,9 @@
     - { url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ host_architecture }}/kubeadm", dest: "/usr/local/bin/kubeadm" }
     - { url: "https://dl.k8s.io/release/{{ kubernetes_version }}/bin/linux/{{ host_architecture }}/kubectl", dest: "/usr/local/bin/kubectl" }
 
-- name: kubelet 서비스 파일 복사 위치 생성
+- name: kubelet 서비스 파일 디렉터리 생성
   file:
-    path: "/usr/local/lib/systemd/system"
+    path: "/etc/systemd/system/kubelet.service.d"
     state: directory
     mode: 0755
     owner: root
@@ -32,7 +32,13 @@
 - name: kubelet 서비스 파일 복사
   copy:
     src: "files/kubelet.service"
-    dest: "/usr/local/lib/systemd/system/kubelet.service"
+    dest: "/etc/systemd/system/kubelet.service"
+    mode: 0644
+
+- name: kubelet kubeadm config 파일 복사
+  copy:
+    src: "files/10-kubeadm.conf"
+    dest: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
     mode: 0644
 
 - name: systemd 데몬 reload

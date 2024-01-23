@@ -30,3 +30,11 @@
   roles:
     - { role: defaults }
     - { role: control-plane }
+
+- name: 워커노드 join
+  hosts: worker
+  become: true
+  become_user: root
+  roles:
+    - { role: defaults }
+    - { role: worker }

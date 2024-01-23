@@ -45,11 +45,12 @@
     group: root
     recurse: yes
 
-- name: Containerd config 파일 복사
-  copy:
-    src: "files/config.toml"
-    dest: "/etc/containerd/config.toml"
-    mode: 0644
+# 아래 파일이 있는경우 kubeadm init 이 동작하지 않음. 원인 파악 필요..!
+# - name: Containerd config 파일 복사
+#   copy:
+#     src: "files/config.toml"
+#     dest: "/etc/containerd/config.toml"
+#     mode: 0644
 
 - name: 시스템 데몬 reload
   systemd:
@@ -94,3 +95,10 @@
     dest: /opt/cni/bin
     remote_src: yes
     extra_opts: [--strip-component=1]
+
+- name: PATH 환경 변수에 /usr/local/bin 추가
+  lineinfile:
+    path: /etc/profile
+    line: 'export PATH=$PATH:/usr/local/bin'
+    state: present
+    create: yes

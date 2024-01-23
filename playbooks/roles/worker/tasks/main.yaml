@@ -1,0 +1,23 @@
+- name: kubeadm config 파일 복사
+  copy:
+    src: "../../../configs/utm/worker.yaml"
+    dest: "/tmp/kubeadm-config.yaml"
+    mode: 0644
+
+- debug: var=ansible_env.PATH
+
+# kubelet 서비스 임시 중지
+- name: kubelet 서비스 임시 중지
+  service:
+    name: kubelet
+    state: stopped
+    enabled: yes
+
+- name: kubeadm join 실행
+  command: "/usr/local/bin/kubeadm join --config /tmp/kubeadm-config.yaml"
+  register: kubeadm_join_result
+  environment: 
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+
+- debug: var=kubeadm_join_result.stdout_lines
+- debug: var=ansible_env.PATH

@@ -1,3 +1,13 @@
+- name: 이미 쿠버네티스 클러스터가 구성되어 있는지 확인
+  find:
+    paths: /var/lib/kubelet
+    patterns: "config.yaml"
+  register: kubernetes_cluster_check_result
+
+- name: 이미 쿠버네티스 클러스터가 구성되어있다면 스킵
+  meta: end_play
+  when: kubernetes_cluster_check_result.matched == true
+
 - name: kubeadm config 파일 복사
   copy:
     src: "../../../configs/utm/master.yaml"
@@ -13,11 +23,11 @@
     state: stopped
     enabled: yes
 
-# - name: kubeadm init 실행
-#   command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
-#   register: kubeadm_init_result
-#   environment: 
-#     PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+- name: kubeadm init 실행
+  command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
+  register: kubeadm_init_result
+  environment: 
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
 
-# - debug: var=kubeadm_init_result.stdout_lines
-# - debug: var=ansible_env.PATH
+- debug: var=kubeadm_init_result.stdout_lines
+- debug: var=ansible_env.PATH
