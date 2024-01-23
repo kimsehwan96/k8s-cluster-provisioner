@@ -71,7 +71,6 @@
 - name: 커널 파라미터 변경점 반영 (systemd)
   command: systemctl restart systemd-modules-load.service
 
-# https://lendit.atlassian.net/wiki/spaces/D/pages/2304966855#k8s-%EB%85%B8%EB%93%9C-%EC%82%AC%EC%A0%84-%EC%9E%91%EC%97%85
 # 여기서 istio 커널 모듈 설정은 일단 보류.. (필요하면 추가하도록 하겠습니다.)
 
 
