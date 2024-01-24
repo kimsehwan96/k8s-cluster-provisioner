@@ -36,6 +36,14 @@
     - { role: defaults }
     - { role: control-plane }
 
+- name: 컨트롤 플레인 인증서 자동 갱신 설정
+  hosts: master
+  become: true
+  become_user: root
+  roles:
+    - { role: defaults }
+    - { role: auto-renew-certs}
+
 - name: 워커노드 join
   hosts: worker
   become: true

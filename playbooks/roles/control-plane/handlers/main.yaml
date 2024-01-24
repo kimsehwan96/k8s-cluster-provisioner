@@ -1,0 +1,11 @@
+---
+- name: ControlPlane 노드의 systemd 데몬을 재시작합니다.
+  systemd:
+    daemon_reload: true
+  listen: ControlPlane | restart kubelet
+
+- name: ControlPlane 노드의 kubelet 을 재시작합니다.
+  service:
+    name: kubelet
+    state: restarted
+  listen: ControlPlane | restart kubelet

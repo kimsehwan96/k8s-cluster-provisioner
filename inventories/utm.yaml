@@ -26,3 +26,7 @@ all:
           worker3:
       vars:
         test_var: test
+    k8s_cluster:
+      children:
+        master:
+        worker:
