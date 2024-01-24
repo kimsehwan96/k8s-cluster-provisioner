@@ -1,0 +1,8 @@
+- name: kubeadm reset 실행
+  command: "/usr/local/bin/kubeadm reset -f"
+  register: kubeadm_reset_result
+  environment: 
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+
+- debug: var=kubeadm_reset_result.stdout_lines
+- debug: var=ansible_env.PATH
