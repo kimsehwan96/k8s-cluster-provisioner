@@ -3,30 +3,30 @@
   roles:
     - { role: check }
 
-# - name: 필수 패키지 설치, 스왑 off , 커널 파라미터 설정, 방화벽 설정 등 기본적인 설정
-#   hosts: master:worker
-#   become: true
-#   roles:
-#     - { role: prepare }
-#   vars:
-#     hostip: "{{ ansible_host }}"
-#     hostname: "{{ inventory_hostname }}"
+- name: 필수 패키지 설치, 스왑 off , 커널 파라미터 설정, 방화벽 설정 등 기본적인 설정
+  hosts: master:worker
+  become: true
+  roles:
+    - { role: prepare }
+  vars:
+    hostip: "{{ ansible_host }}"
+    hostname: "{{ inventory_hostname }}"
 
-# - name: 컨테이너 런타임 설치
-#   hosts: master:worker
-#   become: true
-#   roles:
-#     - { role: defaults }
-#     - { role: container-runtime }
+- name: 컨테이너 런타임 설치
+  hosts: master:worker
+  become: true
+  roles:
+    - { role: defaults }
+    - { role: container-runtime }
 
-# - name: 쿠버네티스 바이너리 설치
-#   hosts: master:worker
-#   become: true
-#   roles:
-#     - { role: defaults }
-#     - { role: kubernetes }
-#   vars:
-#     hostip: "{{ ansible_host }}"
+- name: 쿠버네티스 바이너리 설치
+  hosts: master:worker
+  become: true
+  roles:
+    - { role: defaults }
+    - { role: kubernetes }
+  vars:
+    hostip: "{{ ansible_host }}"
 
 - name: 컨트롤 플레인 구성
   hosts: master
@@ -44,10 +44,10 @@
     - { role: defaults }
     - { role: auto-renew-certs}
 
-# - name: 워커노드 join
-#   hosts: worker
-#   become: true
-#   become_user: root
-#   roles:
-#     - { role: defaults }
-#     - { role: worker }
+- name: 워커노드 join
+  hosts: worker
+  become: true
+  become_user: root
+  roles:
+    - { role: defaults }
+    - { role: worker }
