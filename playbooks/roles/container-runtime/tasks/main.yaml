@@ -45,12 +45,11 @@
     group: root
     recurse: yes
 
-# 아래 파일이 있는경우 kubeadm init 이 동작하지 않음. 원인 파악 필요..!
-# - name: Containerd config 파일 복사
-#   copy:
-#     src: "files/config.toml"
-#     dest: "/etc/containerd/config.toml"
-#     mode: 0644
+- name: Containerd config 파일 복사
+  copy:
+    src: "files/config.toml"
+    dest: "/etc/containerd/config.toml"
+    mode: 0644
 
 - name: 시스템 데몬 reload
   systemd:

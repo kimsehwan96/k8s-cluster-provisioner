@@ -94,3 +94,15 @@
     enabled: no
   become: true
   when: ansible_os_family == "Debian"
+
+- name: 호스트 네임 설정
+  hostname:
+    name: "{{ hostname }}"
+
+- name: Add hostname
+  lineinfile:
+    path: /etc/hosts
+    regexp: '{{ hostip }}'
+    line: '{{ hostip }} {{ hostname }}'
+    create: yes
+  

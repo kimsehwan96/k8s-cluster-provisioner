@@ -8,7 +8,5 @@
 - debug: msg="호스트 디스크 :{{ ansible_devices }}"
 - debug: msg="호스트 네트워크 :{{ ansible_interfaces }}"
 - debug: msg="호스트 아키텍처 :{{ ansible_architecture }}"
-
-
-
-
+- debug: msg="hostname :{{ inventory_hostname }}"
+- debug: msg="ansible_host :{{ ansible_host }}"

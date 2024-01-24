@@ -1,3 +1,14 @@
+- name: Configure node ip
+  # lineinfile:
+  #   path: /etc/default/kubelet
+  #   line: KUBELET_EXTRA_ARGS=--node-ip={{ hostip }}
+  #   regexp: KUBELET_EXTRA_ARGS=
+  #   create: yes
+  set_fact:
+    kubelet_extra_args: "--node-ip={{ hostip }}"
+
+- debug: msg="kubelet extra args :{{ kubelet_extra_args }}"
+
 - name: crictl 다운로드
   get_url:
     url: "https://github.com/kubernetes-sigs/cri-tools/releases/download/{{ crictl_version }}/crictl-{{ crictl_version }}-linux-{{ host_architecture }}.tar.gz"
@@ -35,11 +46,13 @@
     dest: "/etc/systemd/system/kubelet.service"
     mode: 0644
 
+
 - name: kubelet kubeadm config 파일 복사
-  copy:
-    src: "files/10-kubeadm.conf"
+  template:
+    src: "files/10-kubeadm.conf.j2"
     dest: "/etc/systemd/system/kubelet.service.d/10-kubeadm.conf"
     mode: 0644
+    backup: yes
 
 - name: systemd 데몬 reload
   systemd:

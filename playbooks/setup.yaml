@@ -8,6 +8,9 @@
   become: true
   roles:
     - { role: prepare }
+  vars:
+    hostip: "{{ ansible_host }}"
+    hostname: "{{ inventory_hostname }}"
 
 - name: 컨테이너 런타임 설치
   hosts: master:worker
@@ -22,6 +25,8 @@
   roles:
     - { role: defaults }
     - { role: kubernetes }
+  vars:
+    hostip: "{{ ansible_host }}"
 
 - name: 컨트롤 플레인 구성
   hosts: master
