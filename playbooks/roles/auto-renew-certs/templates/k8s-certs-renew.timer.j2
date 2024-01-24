@@ -1,0 +1,12 @@
+[Unit]
+Description=Timer to renew K8S control plane certificates
+
+[Timer]
+OnCalendar=Mon *-*-1,2,3,4,5,6,7 00:00:00
+# 매달 월요일 자정, 랜덤한 10분 내외의 딜레이를 갖고 시작함.
+RandomizedDelaySec=10min
+FixedRandomDelay=yes
+Persistent=yes
+
+[Install]
+WantedBy=multi-user.target
