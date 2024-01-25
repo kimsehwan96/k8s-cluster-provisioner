@@ -6,6 +6,7 @@
 - name: 필수 패키지 설치, 스왑 off , 커널 파라미터 설정, 방화벽 설정 등 기본적인 설정
   hosts: master:worker
   become: true
+  become_user: root
   roles:
     - { role: prepare }
   vars:
@@ -15,6 +16,7 @@
 - name: 컨테이너 런타임 설치
   hosts: master:worker
   become: true
+  become_user: root
   roles:
     - { role: defaults }
     - { role: container-runtime }
@@ -22,6 +24,7 @@
 - name: 쿠버네티스 바이너리 설치
   hosts: master:worker
   become: true
+  become_user: root
   roles:
     - { role: defaults }
     - { role: kubernetes }
