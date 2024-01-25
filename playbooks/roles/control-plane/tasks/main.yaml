@@ -1,19 +1,17 @@
 - name: 이미 쿠버네티스 클러스터가 구성되어 있는지 확인
-  find:
-    paths: /var/lib/kubelet
-    patterns: "config.yaml"
-  register: kubernetes_cluster_check_result
-
-- name: 이미 쿠버네티스 클러스터가 구성되어있다면 스킵
-  meta: end_play
-  when: kubernetes_cluster_check_result.matched == true
+  stat:
+    path: "{{ kube_config_dir }}/kubelet.conf"
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: kubelet_conf
 
 - name: kubeadm config 파일 복사
   copy:
     src: "../../../configs/utm/master.yaml"
     dest: "/tmp/kubeadm-config.yaml"
     mode: 0644
-
+  when: kubelet_conf.stat.exists == False
 - debug: var=ansible_env.PATH
 
 # kubelet 서비스 임시 중지
@@ -22,12 +20,14 @@
     name: kubelet
     state: stopped
     enabled: yes
+  when: kubelet_conf.stat.exists == False
 
 - name: kubeadm init 실행
   command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
   register: kubeadm_init_result
   environment: 
     PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+  when: kubelet_conf.stat.exists == False
 
 - debug: var=kubeadm_init_result.stdout_lines
 - debug: var=ansible_env.PATH
