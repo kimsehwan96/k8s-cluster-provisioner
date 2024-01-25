@@ -1,9 +1,17 @@
+- name: 이미 쿠버네티스 클러스터가 구성되어 있는지 확인
+  stat:
+    path: "{{ kube_config_dir }}/kubelet.conf"
+    get_attributes: no
+    get_checksum: no
+    get_mime: no
+  register: kubelet_conf
+
 - name: kubeadm config 파일 복사
   copy:
     src: "../../../configs/utm/worker.yaml"
     dest: "/tmp/kubeadm-config.yaml"
     mode: 0644
-
+  when: kubelet_conf.stat.exists == False
 - debug: var=ansible_env.PATH
 
 # kubelet 서비스 임시 중지
@@ -12,12 +20,14 @@
     name: kubelet
     state: stopped
     enabled: yes
+  when: kubelet_conf.stat.exists == False
 
 - name: kubeadm join 실행
   command: "/usr/local/bin/kubeadm join --config /tmp/kubeadm-config.yaml"
   register: kubeadm_join_result
   environment: 
     PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+  when: kubelet_conf.stat.exists == False
 
 - debug: var=kubeadm_join_result.stdout_lines
 - debug: var=ansible_env.PATH
