@@ -95,6 +95,19 @@
     remote_src: yes
     extra_opts: [--strip-component=1]
 
+- name: nerdctl 파일 다운로드
+  get_url:
+    url: "https://github.com/containerd/nerdctl/releases/download/v{{ nerdctl_version }}/nerdctl-{{ nerdctl_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: "/tmp/nerdctl-{{ nerdctl_version }}-linux-{{ host_architecture }}.tar.gz"
+    mode: 0644
+
+- name: nerdctl 압축 해제 및 /usr/local/bin 이동
+  unarchive:
+    src: "/tmp/nerdctl-{{ nerdctl_version }}-linux-{{ host_architecture }}.tar.gz"
+    dest: /usr/local/bin
+    remote_src: yes
+
+
 - name: PATH 환경 변수에 /usr/local/bin 추가
   lineinfile:
     path: /etc/profile
