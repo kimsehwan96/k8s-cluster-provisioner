@@ -26,7 +26,7 @@
   command: "/usr/local/bin/kubeadm join --config /tmp/kubeadm-config.yaml"
   register: kubeadm_join_result
   environment: 
-    PATH: "{{ ansible_env.PATH }}:/usr/local/bin"
+    PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
   when: kubelet_conf.stat.exists == False
 
 - debug: var=kubeadm_join_result.stdout_lines
