@@ -6,15 +6,9 @@ all:
     kubernetes_version: v1.29.1
   hosts:
     master1:
-      ansible_host: 192.168.201.7
+      ansible_host: 192.168.201.12
     worker1:
-      ansible_host: 192.168.201.8
-    worker2:
-      ansible_host: 192.168.201.9
-    worker3:
-      ansible_host: 192.168.201.10
-    worker4:
-      ansible_host: 192.168.201.11
+      ansible_host: 192.168.201.13
   children:
     master:
       hosts:
@@ -24,9 +18,6 @@ all:
     worker:
       hosts:
           worker1:
-          worker2:
-          worker3:
-          worker4:
       vars:
         test_var: test
     k8s_cluster:

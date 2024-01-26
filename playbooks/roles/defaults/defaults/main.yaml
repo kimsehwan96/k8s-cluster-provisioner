@@ -8,3 +8,8 @@ host_architecture: >-
   {%- else -%}
   {{ ansible_architecture }}
   {%- endif -%}
+
+is_kube_master:
+kube_apiserver_address: 
+kube_apiserver_count:
+first_kube_control_plane_address:
