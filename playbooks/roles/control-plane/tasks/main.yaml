@@ -12,8 +12,8 @@
 
 - name: 부트스트랩 토큰 재발급
   shell: >-
-    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token delete {{ bootstrap_token }} && \
-    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token create {{ bootstrap_token }}
+    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token delete {{ bootstrap_token }} || :;
+    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token create {{ bootstrap_token }} --ttl 5m
   changed_when: false
   when:
     - inventory_hostname == first_kube_control_plane
@@ -23,7 +23,7 @@
     src: "../../../configs/utm/master.yaml"
     dest: "/tmp/kubeadm-config.yaml"
     mode: 0644
-  # when: kubelet_conf.stat.exists == False
+  when: kubelet_conf.stat.exists == False
 - debug: var=ansible_env.PATH
 
 # kubelet 서비스 임시 중지
@@ -32,7 +32,7 @@
     name: kubelet
     state: stopped
     enabled: yes
-  # when: kubelet_conf.stat.exists == False
+  when: kubelet_conf.stat.exists == False
 
 - name: kubeadm init 실행
   command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
