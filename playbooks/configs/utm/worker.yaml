@@ -2,7 +2,7 @@ apiVersion: kubeadm.k8s.io/v1beta3
 kind: JoinConfiguration
 discovery:
   bootstrapToken:
-    apiServerEndpoint: 192.168.201.7:6443
+    apiServerEndpoint: 192.168.201.12:6443
     token: abcdef.0123456789abcdef
     unsafeSkipCAVerification: true
   timeout: 5m0s
