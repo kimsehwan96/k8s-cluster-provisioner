@@ -1,0 +1,41 @@
+- name: 인증서 업로드
+  command: >-
+    {{ bin_dir }}/kubeadm init phase
+    --config /tmp/kubeadm-config.yaml
+    upload-certs
+    --upload-certs
+  register: kubeadm_upload_cert
+  when:
+    - inventory_hostname == first_kube_control_plane
+
+- name: certificate key 설정
+  set_fact:
+    kubeadm_certificate_key: "{{ hostvars[groups['master'][0]]['kubeadm_upload_cert'].stdout_lines[-1] | trim }}"
+  run_once: yes
+  when:
+    - hostvars[groups['master'][0]]['kubeadm_upload_cert'] is defined
+    # - hostvars[groups['master'][0]]['kubeadm_upload_cert'] is not skipped
+
+- debug: msg="kubeadm_certificate_key :{{ kubeadm_certificate_key }}"
+
+- name: kubeadm 설정 파일 복사
+  copy:
+    src: "../../../configs/utm/master-join.yaml"
+    dest: "/tmp/kubeadm-config.yaml"
+    mode: 0644
+  when: kubelet_conf.stat.exists == False
+
+- name: 이미 kubeadm 수행되었는지 체크
+  debug:
+    msg: "{{ kubelet_conf.stat.exists }}"
+
+- name: 인증서 디렉터리 초기화
+  shell: >-
+    if [ -f /etc/kubernetes/manifests/kube-apiserver.yaml ]; then
+    {{ bin_dir }}/kubeadm reset -f --cert-dir /etc/kubernetes/pki;
+    fi
+  environment:
+    PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
+  when:
+    - inventory_hostname != first_kube_control_plane
+    - kubeadm_already_run is not defined or not kubeadm_already_run.stat.exists

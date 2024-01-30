@@ -54,3 +54,14 @@
     remote_src: yes
     mode: "0600"
     backup: yes
+
+- name: kubeadm certificate key 설정
+  set_fact:
+    kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
+  with_items: "{{ hostvars[groups['master'][0]]['kubeadm_init_result'].stdout_lines | default([]) }}"
+  when:
+    - kubeadm_certificate_key is not defined
+    - (item | trim) is match('.*--certificate-key.*')
+
+- name: 다른 contron plane 노드 join
+  include_tasks: join-other-control-plane.yaml
