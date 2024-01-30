@@ -23,7 +23,7 @@
     src: "../../../configs/utm/master-join.yaml"
     dest: "/tmp/kubeadm-config.yaml"
     mode: 0644
-  when: kubelet_conf.stat.exists == False
+  when: not kubelet_conf.stat.exists
 
 - name: 이미 kubeadm 수행되었는지 체크
   debug:
@@ -38,4 +38,20 @@
     PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
   when:
     - inventory_hostname != first_kube_control_plane
-    - kubeadm_already_run is not defined or not kubeadm_already_run.stat.exists
+    - not kubelet_conf.stat.exists
+
+- name: 컨트롤 플레인 노드 join
+  command: >-
+    {{ bin_dir }}/kubeadm join
+    --config /tmp/kubeadm-config.yaml
+    --ignore-preflight-errors=all
+    --certificate-key {{ kubeadm_certificate_key }}
+  environment:
+    PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
+  register: kubeadm_join_control_plane
+  retries: 3
+  throttle: 1
+  until: kubeadm_join_control_plane is succeeded
+  when:
+    - inventory_hostname != first_kube_control_plane
+    - not kubelet_conf.stat.exists

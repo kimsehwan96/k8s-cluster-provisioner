@@ -11,6 +11,7 @@ controlPlane:
   localAPIEndpoint:
     advertiseAddress: 192.168.201.12
     bindPort: 6443
+certificateKey: "acca4374af5ed236a2130987a1ddff1aac1441146b5b51dc8b613af1dc4938d4"
 nodeRegistration:
   criSocket: unix:///var/run/containerd/containerd.sock
   imagePullPolicy: IfNotPresent
