@@ -15,6 +15,7 @@ nodeRegistration:
   criSocket: unix:///var/run/containerd/containerd.sock
   imagePullPolicy: IfNotPresent
   taints: []
+certificateKey: "acca4374af5ed236a2130987a1ddff1aac1441146b5b51dc8b613af1dc4938d4"
 # skipPhases:
 #   - addon/kube-proxy
 ---
