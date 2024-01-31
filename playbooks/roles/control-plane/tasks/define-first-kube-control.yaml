@@ -24,6 +24,6 @@
 # 만료된 부트스트랩 토큰을 제거하고 재발급하고, 그 토큰을 사용하는 과정이 필요한데, 모든 컨트롤 플레인 노드에서 수행 될 필요 없이
 # 하나의 컨트롤 플레인에서만 수행되면 되기때문입니다.
 
-- debug: msg="joined_control_planes :{{ joined_control_planes }}"
+# - debug: msg="joined_control_planes :{{ joined_control_planes }}"
 
 - debug: msg="first_kube_control_plane :{{ first_kube_control_plane }}"

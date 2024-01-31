@@ -1,0 +1,64 @@
+- name: 인증서 업로드
+  command: >-
+    {{ bin_dir }}/kubeadm init phase
+    --config {{ kube_config_dir }}/kubeadm-config.yaml
+    upload-certs
+    --upload-certs
+  register: kubeadm_upload_cert
+  when:
+    - inventory_hostname == first_kube_control_plane
+
+- name: certificate key 설정
+  set_fact:
+    kubeadm_certificate_key: "{{ hostvars[groups['master'][0]]['kubeadm_upload_cert'].stdout_lines[-1] | trim }}"
+  run_once: yes
+  when:
+    - hostvars[groups['master'][0]]['kubeadm_upload_cert'] is defined
+    - hostvars[groups['master'][0]]['kubeadm_upload_cert'] is not skipped
+
+- debug: msg="kubeadm_certificate_key :{{ kubeadm_certificate_key }}"
+
+
+- name: kubeadm config 파일 복사
+  template:
+    src: "templates/kubeadm-controlplane.yaml.j2"
+    dest: "{{ kube_config_dir }}/kubeadm-controlplane.yaml"
+    mode: 0644
+
+
+- name: 이미 kubeadm 수행되었는지 체크
+  debug:
+    msg: "{{ kubelet_conf.stat.exists }}"
+
+- name: 인증서 디렉터리 초기화
+  shell: >-
+    if [ -f /etc/kubernetes/manifests/kube-apiserver.yaml ]; then
+    {{ bin_dir }}/kubeadm reset -f --cert-dir /etc/kubernetes/pki;
+    fi
+  environment:
+    PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
+  when:
+    - inventory_hostname != first_kube_control_plane
+    - not kubelet_conf.stat.exists
+
+- name: API 서버 준비 확인
+  wait_for:
+    host: "{{ first_kube_control_plane_address }}"
+    port: "{{ kube_apiserver_port }}"
+    delay: 5
+    timeout: 180
+
+- name: 컨트롤 플레인 노드 join
+  command: >-
+    {{ bin_dir }}/kubeadm join
+    --config {{ kube_config_dir }}/kubeadm-controlplane.yaml
+    --ignore-preflight-errors=all
+  environment:
+    PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
+  register: kubeadm_join_control_plane
+  retries: 3
+  throttle: 1
+  until: kubeadm_join_control_plane is succeeded
+  when:
+    - inventory_hostname != first_kube_control_plane
+    - not kubelet_conf.stat.exists

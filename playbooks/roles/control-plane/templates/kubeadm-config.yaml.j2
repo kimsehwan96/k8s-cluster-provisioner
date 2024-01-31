@@ -1,49 +1,49 @@
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: InitConfiguration
+{% if bootstrap_token is defined %}
 bootstrapTokens:
   - groups:
       - system:bootstrappers:kubeadm:default-node-token
-    token: abcdef.0123456789abcdef # Move to template variable
+    token: "{{ bootstrap_token }}"
     ttl: 0h30m0s
     usages:
       - signing
       - authentication
+{% endif %}
 localAPIEndpoint:
-  advertiseAddress: 192.168.201.12
-  bindPort: 6443
+  advertiseAddress: {{ ansible_host }}
+  bindPort: {{ kube_apiserver_port }}
 nodeRegistration:
   criSocket: unix:///var/run/containerd/containerd.sock
   imagePullPolicy: IfNotPresent
   taints: []
-certificateKey: "acca4374af5ed236a2130987a1ddff1aac1441146b5b51dc8b613af1dc4938d4"
-# skipPhases:
-#   - addon/kube-proxy
 ---
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
   extraArgs:
-    apiserver-count: "3"
+    apiserver-count: "{{ kube_apiserver_count }}"
+  certSANs:
+{% for san in apiserver_sans %}
+    - {{ san }}
+{% endfor %}
+  timeoutForControlPlane: 5m0s
 certificatesDir: /etc/kubernetes/pki
-clusterName: utm-test
+clusterName: {{ cluster_name }}
 controllerManager: {}
 dns: {}
 etcd:
   local:
     dataDir: /var/lib/etcd
 imageRepository: registry.k8s.io
-kubernetesVersion: 1.29.1
+kubernetesVersion: {{ kube_version }}
 networking:
   dnsDomain: cluster.local
-  serviceSubnet: 172.16.0.0/16
-  podSubnet: 10.101.0.0/16
+  serviceSubnet: {{ service_subnet }}
+  podSubnet: {{ pod_subnet }}
 scheduler: {}
-
-#TEST
-controlPlaneEndpoint: 192.168.201.12:6443
-# cerficatesDir: /etc/kubernetes/pki
-# cerfiticatesDir: <- 이거 아마 해당 경로에 인증서 만들라는 옵션 같은데. 검색해봐야 함
-
+controlPlaneEndpoint: "{{ ansible_host }}:{{ kube_apiserver_port }}"
+cerficatesDir: {{ kube_cert_dir }}
 ---
 apiVersion: kubelet.config.k8s.io/v1beta1
 kind: KubeletConfiguration

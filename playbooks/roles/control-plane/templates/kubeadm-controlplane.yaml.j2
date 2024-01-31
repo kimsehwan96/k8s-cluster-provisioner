@@ -1,0 +1,18 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: JoinConfiguration
+discovery:
+  bootstrapToken:
+    apiServerEndpoint: {{ first_kube_control_plane_address }}:{{ kube_apiserver_port }}
+    token: {{ bootstrap_token }}
+    unsafeSkipCAVerification: true
+  timeout: 5m0s
+  tlsBootstrapToken: {{ bootstrap_token }}
+controlPlane:
+  localAPIEndpoint: # 로컬 API 서버 엔드포인트
+    advertiseAddress: {{ ansible_host }}
+    bindPort: {{ kube_apiserver_port }}
+  certificateKey: {{ kubeadm_certificate_key }}
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+caCertPath: {{ kube_cert_dir }}/ca.crt
