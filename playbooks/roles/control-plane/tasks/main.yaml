@@ -6,13 +6,14 @@
     get_mime: no
   register: kubelet_conf
 
+
 - name: 이미 join 된 컨트롤 플레인 확인 및 first_kube_control_plane 변수 설정
   import_tasks: define-first-kube-control.yaml
   # when: kubelet_conf.stat.exists
 
 - name: SANs 설정
   set_fact:
-    apiserver_sans: "{{ (sans_base + groups['master'] + sans_access_ip + sans_ip + sans_hostname) | unique }}"
+    apiserver_sans: "{{ (sans_base + groups['master'] + sans_access_ip + sans_ip + sans_address + sans_hostname) | unique }}"
   vars:
     sans_base:
       - "kubernetes"
@@ -24,14 +25,11 @@
       - "127.0.0.1"
     # sans_lb: "{{ [apiserver_loadbalancer_domain_name] if apiserver_loadbalancer_domain_name is defined else [] }}"
     # sans_lb_ip: "{{ [loadbalancer_apiserver.address] if loadbalancer_apiserver is defined and loadbalancer_apiserver.address is defined else [] }}"
-    # sans_supp: "{{ supplementary_addresses_in_ssl_keys if supplementary_addresses_in_ssl_keys is defined else [] }}"
     sans_access_ip: "{{ groups['master'] | map('extract', hostvars, 'access_ip') | list | select('defined') | list }}"
     sans_ip: "{{ groups['master'] | map('extract', hostvars, 'ip') | list | select('defined') | list }}"
-    # sans_address: "{{ groups['master'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list | select('defined') | list }}"
+    sans_address: "{{ groups['master'] | map('extract', hostvars, ['ansible_default_ipv4', 'address']) | list | select('defined') | list }}"
     # sans_override: "{{ [kube_override_hostname] if kube_override_hostname else [] }}"
     sans_hostname: "{{ groups['master'] | map('extract', hostvars, ['ansible_hostname']) | list | select('defined') | list }}"
-    # sans_fqdn: "{{ groups['master'] | map('extract', hostvars, ['ansible_fqdn']) | list | select('defined') | list }}"
-    # sans_kube_vip_address: "{{ [kube_vip_address] if kube_vip_address is defined and kube_vip_address else [] }}"
   tags: facts
 
 - debug:
@@ -74,7 +72,7 @@
   command: >-
     {{ bin_dir }}/kubeadm
     init phase certs apiserver
-    --config=/tmp/kubeadm-config.yaml
+    --config={{ kube_config_dir }}/kubeadm-config.yaml
   when:
     - kubelet_conf.stat.exists
     - apiserver_sans_ip_check.changed or apiserver_sans_host_check.changed
@@ -90,12 +88,11 @@
     - kubelet_conf.stat.exists
 
 - name: kubeadm config 파일 복사
-  copy:
-    src: "../../../configs/utm/master.yaml"
-    dest: "/tmp/kubeadm-config.yaml"
+  template:
+    src: "templates/kubeadm-config.yaml.j2"
+    dest: "{{ kube_config_dir }}/kubeadm-config.yaml"
     mode: 0644
-  when: not kubelet_conf.stat.exists
-- debug: var=ansible_env.PATH
+
 
 # kubelet 서비스 임시 중지
 - name: kubelet 서비스 임시 중지
@@ -106,19 +103,20 @@
   when: not kubelet_conf.stat.exists
 
 - name: 첫번째 Control Plane 노드 kubeadm init 실행
-  command: "/usr/local/bin/kubeadm init --upload-certs --config /tmp/kubeadm-config.yaml"
+  command: "/usr/local/bin/kubeadm init --upload-certs --config {{ kube_config_dir }}/kubeadm-config.yaml"
   register: kubeadm_init_result
   environment: 
     PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
   when: not kubelet_conf.stat.exists and inventory_hostname == first_kube_control_plane
 
-# - name: kubeadm certificate key 설정
-#   set_fact:
-#     kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
-#   with_items: "{{ hostvars[groups['master'][0]]['kubeadm_init_result'].stdout_lines | default([]) }}"
-#   when:
-#     - kubeadm_certificate_key is not defined
-#     - (item | trim) is match('.*--certificate-key.*')
+
+- name: kubeadm certificate key 설정
+  set_fact:
+    kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
+  with_items: "{{ hostvars[groups['master'][0]]['kubeadm_init_result'].stdout_lines | default([]) }}"
+  when:
+    - kubeadm_certificate_key is not defined
+    - (item | trim) is match('.*--certificate-key.*')
 
 - name: 다른 contron plane 노드 join
   include_tasks: join-other-control-plane.yaml

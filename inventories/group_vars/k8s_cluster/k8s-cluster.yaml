@@ -1,9 +1,10 @@
 bin_dir: /usr/local/bin
 kube_config_dir: /etc/kubernetes
 kube_version: v1.29.1
-kube_apiserver_port: 6443
 auto_renew_certificates: true # 자동으로 컨트롤 플레인의 인증서를 갱신함. 프로덕션에서 써도 되려나?
-kube_apiserver_ip: 192.168.201.12
 # token for joining cluster
 bootstrap_token: "abcdef.0123456789abcdef"
 kube_cert_dir: /etc/kubernetes/pki
+# Service IP address for kube apiserver
+kube_apiserver_ip: "{{ service_subnet | ansible.utils.ipaddr('net') | ansible.utils.ipaddr(1) | ansible.utils.ipaddr('address') }}"
+kube_apiserver_port: 6443

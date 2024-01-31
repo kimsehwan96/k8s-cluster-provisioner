@@ -9,7 +9,5 @@ host_architecture: >-
   {{ ansible_architecture }}
   {%- endif -%}
 
-is_kube_master:
-kube_apiserver_address: 
-kube_apiserver_count:
-first_kube_control_plane_address:
+first_kube_control_plane_address: "{{ hostvars[groups['master'][0]]['ansible_host'] }}"
+kube_apiserver_count: "{{ groups['master'] | length }}"

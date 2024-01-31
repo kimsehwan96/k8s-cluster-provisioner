@@ -1,0 +1,46 @@
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: InitConfiguration
+{% if bootstrap_token is defined %}
+bootstrapTokens:
+  - groups:
+      - system:bootstrappers:kubeadm:default-node-token
+    token: "{{ bootstrap_token }}"
+    ttl: 0h30m0s
+    usages:
+      - signing
+      - authentication
+{% endif %}
+localAPIEndpoint:
+  advertiseAddress: {{ ansible_host }}
+  bindPort: {{ kube_apiserver_port }}
+nodeRegistration:
+  criSocket: unix:///var/run/containerd/containerd.sock
+  imagePullPolicy: IfNotPresent
+  taints: []
+---
+apiVersion: kubeadm.k8s.io/v1beta3
+kind: ClusterConfiguration
+apiServer:
+  extraArgs:
+    apiserver-count: "{{ kube_apiserver_count }}"
+certificatesDir: /etc/kubernetes/pki
+clusterName: {{ cluster_name }}
+controllerManager: {}
+dns: {}
+etcd:
+  local:
+    dataDir: /var/lib/etcd
+imageRepository: registry.k8s.io
+kubernetesVersion: {{ kube_version }}
+networking:
+  dnsDomain: cluster.local
+  serviceSubnet: {{ service_subnet }}
+  podSubnet: {{ pod_subnet }}
+scheduler: {}
+controlPlaneEndpoint: "{{ ansible_host }}:{{ kube_apiserver_port }}"
+cerficatesDir: {{ kube_cert_dir }}
+---
+apiVersion: kubelet.config.k8s.io/v1beta1
+kind: KubeletConfiguration
+cgroupDriver: systemd
+
