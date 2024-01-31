@@ -35,20 +35,21 @@
 - debug:
     msg: "{{ apiserver_sans }}"
 
-- name: Kubeadm | Check apiserver.crt SANs
+# From kubespray
+- name: Kubeadm | apiserver.crt 인증서 SANs 항목 체크
   vars:
     apiserver_ips: "{{ apiserver_sans | map('ansible.utils.ipaddr') | reject('equalto', False) | list }}"
     apiserver_hosts: "{{ apiserver_sans | difference(apiserver_ips) }}"
   when:
     - kubelet_conf.stat.exists
   block:
-    - name: Kubeadm | Check apiserver.crt SAN IPs
+    - name: Kubeadm | apiserver.crt 인증서 SAN IP 체크
       command:
         cmd: "openssl x509 -noout -in {{ kube_cert_dir }}/apiserver.crt -checkip {{ item }}"
       loop: "{{ apiserver_ips }}"
       register: apiserver_sans_ip_check
       changed_when: apiserver_sans_ip_check.stdout is not search('does match certificate')
-    - name: Kubeadm | Check apiserver.crt SAN hosts
+    - name: Kubeadm | apiserver.crt SAN hosts 체크
       command:
         cmd: "openssl x509 -noout -in {{ kube_cert_dir }}/apiserver.crt -checkhost {{ item }}"
       loop: "{{ apiserver_hosts }}"
@@ -56,7 +57,7 @@
       changed_when: apiserver_sans_host_check.stdout is not search('does match certificate')
 
 
-- name: Kubeadm | regenerate apiserver cert 1/2
+- name: Kubeadm | apiserver 인증서 재생성 (기존 인증서 삭제) 1/2
   file:
     state: absent
     path: "{{ kube_cert_dir }}/{{ item }}"

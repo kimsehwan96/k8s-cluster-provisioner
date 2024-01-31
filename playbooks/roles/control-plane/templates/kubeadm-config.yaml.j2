@@ -23,6 +23,11 @@ kind: ClusterConfiguration
 apiServer:
   extraArgs:
     apiserver-count: "{{ kube_apiserver_count }}"
+  certSANs:
+{% for san in apiserver_sans %}
+    - {{ san }}
+{% endfor %}
+  timeoutForControlPlane: 5m0s
 certificatesDir: /etc/kubernetes/pki
 clusterName: {{ cluster_name }}
 controllerManager: {}
