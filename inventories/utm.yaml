@@ -9,21 +9,22 @@ all:
       ansible_host: 192.168.201.12
     master2:
       ansible_host: 192.168.201.14
-    worker1:
+    master3:
       ansible_host: 192.168.201.13
   children:
     master:
       hosts:
           master1:
           master2:
+          master3:
       vars:
         test_var: test
-    worker:
-      hosts:
-          worker1:
-      vars:
-        test_var: test
+    # worker:
+    #   hosts:
+    #       worker1:
+    #   vars:
+    #     test_var: test
     k8s_cluster:
       children:
         master:
-        worker:
+        # worker:

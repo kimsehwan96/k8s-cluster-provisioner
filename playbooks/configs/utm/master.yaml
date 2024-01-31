@@ -4,7 +4,7 @@ bootstrapTokens:
   - groups:
       - system:bootstrappers:kubeadm:default-node-token
     token: abcdef.0123456789abcdef # Move to template variable
-    ttl: 0h1m0s
+    ttl: 0h30m0s
     usages:
       - signing
       - authentication
@@ -22,6 +22,8 @@ certificateKey: "acca4374af5ed236a2130987a1ddff1aac1441146b5b51dc8b613af1dc4938d
 apiVersion: kubeadm.k8s.io/v1beta3
 kind: ClusterConfiguration
 apiServer:
+  extraArgs:
+    apiserver-count: "3"
 certificatesDir: /etc/kubernetes/pki
 clusterName: utm-test
 controllerManager: {}

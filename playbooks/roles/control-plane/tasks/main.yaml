@@ -83,10 +83,11 @@
 - name: 부트스트랩 토큰 재발급
   shell: >-
     {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token delete {{ bootstrap_token }} || :;
-    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token create {{ bootstrap_token }} --ttl 5m
+    {{ bin_dir }}/kubeadm --kubeconfig {{ kube_config_dir }}/admin.conf token create {{ bootstrap_token }} --ttl 30m
   changed_when: false
   when:
-    - inventory_hostname == first_kube_control_plane and first_kube_control_plane is defined
+    - inventory_hostname == first_kube_control_plane
+    - kubelet_conf.stat.exists
 
 - name: kubeadm config 파일 복사
   copy:
@@ -111,13 +112,13 @@
     PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
   when: not kubelet_conf.stat.exists and inventory_hostname == first_kube_control_plane
 
-- name: kubeadm certificate key 설정
-  set_fact:
-    kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
-  with_items: "{{ hostvars[groups['master'][0]]['kubeadm_init_result'].stdout_lines | default([]) }}"
-  when:
-    - kubeadm_certificate_key is not defined
-    - (item | trim) is match('.*--certificate-key.*')
+# - name: kubeadm certificate key 설정
+#   set_fact:
+#     kubeadm_certificate_key: "{{ item | regex_search('--certificate-key ([^ ]+)', '\\1') | first }}"
+#   with_items: "{{ hostvars[groups['master'][0]]['kubeadm_init_result'].stdout_lines | default([]) }}"
+#   when:
+#     - kubeadm_certificate_key is not defined
+#     - (item | trim) is match('.*--certificate-key.*')
 
 - name: 다른 contron plane 노드 join
   include_tasks: join-other-control-plane.yaml
