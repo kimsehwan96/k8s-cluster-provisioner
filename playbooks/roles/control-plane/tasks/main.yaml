@@ -69,7 +69,7 @@
     - apiserver_sans_ip_check.changed or apiserver_sans_host_check.changed
 
 
-- name: Kubeadm | regenerate apiserver cert 2/2
+- name: Kubeadm | apiserver 인증서 재생성 (kubeadm 을 통해 인증서 재생성) 2/2
   command: >-
     {{ bin_dir }}/kubeadm
     init phase certs apiserver

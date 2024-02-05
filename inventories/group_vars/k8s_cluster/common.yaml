@@ -1,0 +1,9 @@
+# For external loadbalancer
+# loadbalancer_apiserver:
+#   address: 1.2.3.4
+#   port: 1234
+
+# loadbalancer_apiserver_localhost: true # This will deploy haproxy on localhost
+
+loadbalancer_apiserver_port: 6443
+
