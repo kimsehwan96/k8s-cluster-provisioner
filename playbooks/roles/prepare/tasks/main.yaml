@@ -79,6 +79,12 @@
     state: disabled
   become: true
 
+## 
+## FIXME: 이건 추후 제거 예정. 실제 프로덕션 환경에서 이렇게 사용하면 위험함
+## kubernetes 클러스터가 정상 동작하기 위한 (etcd까지 포함) 포트를 정리하고
+## 그것을 사용자가 별도로 설정 해야 만 이 playbook 이 정상 동작하도록 하거나
+## 이 playbook 에서 방화벽 설정을 할 수 있도록 별도 지원 할 예정
+## 
 - name: firewalld 비활성화 (RedHat 계열)
   service:
     name: firewalld
