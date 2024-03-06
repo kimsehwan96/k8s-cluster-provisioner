@@ -3,6 +3,7 @@ all:
     ansible_user: hayden
     ansible_password: 1234
     ansible_become_password: 1234
+    # TODO: 이 변수들을 별도의 파일/공간에서 저장 관리 (설정 하기 쉽도록)
     kubernetes_version: v1.29.1
     cluster_name: utm-test
     service_subnet: "172.16.0.0/16"
